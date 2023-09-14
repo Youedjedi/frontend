@@ -5,3 +5,34 @@
       --lumo-border-radius-l: var(--lumo-size-m);
 
     }
+@import url("//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css");
+
+.breadcrumbs a {
+    color: black; /* Màu đen cho các liên kết */
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.breadcrumbs a:not(:first-child):before {
+    content: '>\0000a0';
+    margin-left: 5px;
+    margin-right: 5px;
+    color: black; /* Màu đen cho ký hiệu > */
+}
+
+/* This is for screens smaller than 768px (typical breakpoint for mobile devices) */
+/* Dành cho màn hình có độ rộng nhỏ hơn 768px */
+@media (max-width: 768px) {
+    .mobile-column {
+        flex-direction: column !important;
+        align-items: center !important;
+    }
+
+    .mobile-avatar-margin {
+        margin-bottom: 10px !important;
+    }
+}
+
+
+
+

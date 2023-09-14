@@ -1,0 +1,69 @@
+
+
+
+//package com.manage.application.views.authen;
+//
+//import com.manage.application.constants.Constants;
+//import com.manage.application.views.register.UserDetails;
+//import com.vaadin.flow.component.Component;
+//import com.vaadin.flow.component.html.Image;
+//import com.vaadin.flow.component.login.LoginI18n;
+//import com.vaadin.flow.component.login.LoginOverlay;
+//import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+//import com.vaadin.flow.router.PageTitle;
+//import com.vaadin.flow.router.Route;
+//import com.vaadin.flow.server.auth.AnonymousAllowed;
+//
+//@PageTitle("Login")
+//@Route(value = LoginView.PATH)
+//@AnonymousAllowed
+//public class LoginView extends VerticalLayout {
+//
+//	public static final String PATH = "/login";
+//	private VerticalLayout root;
+//	private LoginOverlay loginOverlay;
+//	private final UserDetails userDetails = new UserDetails();
+//
+//	public LoginView() {
+//		init();
+//		add(layout());
+//	}
+//
+//	private void init() {
+//		loginOverlay = new LoginOverlay();
+//		loginOverlay.setOpened(true);
+//		loginOverlay.setI18n(createRussianI18n());
+//
+//		root = new VerticalLayout();
+//		root.setAlignItems(Alignment.CENTER);
+//		root.setJustifyContentMode(JustifyContentMode.CENTER);
+//		root.setMargin(true);
+//
+//		loginOverlay.addForgotPasswordListener(e -> forgotPassword());
+//		loginOverlay.addLoginListener(e -> login(e));
+//	}
+//
+//	private Component layout() {
+//		root.add(new Image(Constants.LOGIN_URL, "Login Image"));
+//		root.add(loginOverlay);
+//		return root;
+//	}
+//
+//	private void forgotPassword() {
+//		// Handle forgot password
+//	}
+//
+//	private void login(LoginOverlay.LoginEvent event) {
+//		userDetails.setEmail(event.getUsername());
+//		userDetails.setPassword(event.getPassword());
+//
+//		// Handle login using userDetails.getEmail() and userDetails.getPassword()
+//		// ...
+//	}
+//
+//	private LoginI18n createRussianI18n() {
+//		final LoginI18n i18n = LoginI18n.createDefault();
+//		// Customize i18n here as needed
+//		return i18n;
+//	}
+//}

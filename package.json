@@ -15,7 +15,7 @@
     "@vaadin/charts": "24.1.6",
     "@vaadin/checkbox": "24.1.6",
     "@vaadin/checkbox-group": "24.1.6",
-    "@vaadin/combo-box": "24.1.6",
+    "@vaadin/combo-box": "^24.1.6",
     "@vaadin/common-frontend": "0.0.18",
     "@vaadin/component-base": "24.1.6",
     "@vaadin/confirm-dialog": "24.1.6",
@@ -195,7 +195,7 @@
       "workbox-core": "7.0.0",
       "workbox-precaching": "7.0.0"
     },
-    "hash": "b8efb9756f98032cbfd7247b8c1c9b9caaf0adef8344c592a655516ec4bef63d"
+    "hash": "67b132dfa50934ed78afe6b681a2f99a0cabd9639b45c8cb4899491e2f09ae4d"
   },
   "overrides": {
     "@vaadin/bundles": "$@vaadin/bundles",

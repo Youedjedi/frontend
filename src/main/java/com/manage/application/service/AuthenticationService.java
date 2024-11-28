@@ -1,11 +1,14 @@
-package com.manage.application.data.service;
+package com.manage.application.service;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
-import com.manage.application.data.model.Account;
+import com.manage.application.domain.request.user.UserRequest;
+import com.manage.application.domain.response.user.UserListResponse;
+import com.manage.application.domain.response.user.UserSingleApiResponse;
+import com.manage.application.domain.response.user.UserSingleResponse;
 import com.manage.application.utils.AuthInterceptor;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
@@ -17,21 +20,22 @@ import org.springframework.web.client.RestTemplate;
 
 @Service
 public class AuthenticationService {
-    private static final String API_URL = "http://localhost:8082"; // Replace with your API URL
+    private static final String API_URL = "http://localhost:8080"; // Replace with your API URL
     private String token;
     private String loggedInUsername;
     RestTemplateBuilder builder = new RestTemplateBuilder();
     RestTemplate restTemplate = builder.additionalInterceptors(new AuthInterceptor(this)).build();
 
 
-    public ResponseEntity<Account> login(Account user) {
+    public ResponseEntity<UserSingleApiResponse> login(UserRequest user) {
         String url = API_URL + "/user/login";
-        return restTemplate.postForEntity(url, user, Account.class);
+        return restTemplate.postForEntity(url, user, UserSingleApiResponse.class);
     }
 
-    public Account register(Account user) {
+    public boolean register(UserRequest user) {
         String url = API_URL + "/user/register";
-        return restTemplate.postForObject(url, user, Account.class);
+        ResponseEntity<UserListResponse> response = restTemplate.postForEntity(url, user, UserListResponse.class);
+        return (response.getStatusCode().is2xxSuccessful());
     }
 
     public void logOut() {
@@ -46,17 +50,17 @@ public class AuthenticationService {
         getSession().setAttribute("token", token);
     }
 
-    public void addUserToLocalCache(Account user) {
+    public void addUserToLocalCache(UserSingleResponse user) {
         String userJson = new JSONObject(user).toString(); // Assuming User object can be converted to JSON directly
         getSession().setAttribute("user", userJson);
     }
 
-    public Account getUserFromLocalCache() {
+    public UserSingleResponse getUserFromLocalCache() {
         String userJson = (String) getSession().getAttribute("user");
         if (userJson != null && !userJson.isEmpty()) {
             // Convert the JSON string back to a User object
             JSONObject jsonObject = new JSONObject(userJson);
-            Account user = new Account();
+            UserSingleResponse user = new UserSingleResponse();
             // Assuming User class has setters for all properties
             user.setUsername(jsonObject.getString("username"));
             // Add other fields similarly

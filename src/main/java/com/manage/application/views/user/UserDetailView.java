@@ -1,7 +1,12 @@
 package com.manage.application.views.user;
 
-import com.manage.application.data.model.User;
-import com.manage.application.data.service.UserService;
+import com.manage.application.domain.response.user.UserListResponse;
+import com.manage.application.domain.response.user.UserSingleApiResponse;
+import com.manage.application.domain.response.user.UserSingleResponse;
+import com.manage.application.service.AuthenticationService;
+import com.manage.application.service.UserService;
+import com.manage.application.enums.Role;
+import com.manage.application.utils.NotificationUtils;
 import com.manage.application.views.MainLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.*;
@@ -13,16 +18,29 @@ import java.text.SimpleDateFormat;
 @PageTitle("View User Detail")
 @Route(value = "user/detail", layout = MainLayout.class)
 public class UserDetailView extends Div implements HasUrlParameter<String> {
-
     private String username;
-    private User user;
+    private UserSingleResponse UserResponse;
     private final UserService userService = new UserService();
+    private final AuthenticationService authenticationService = new AuthenticationService();
+
+    private boolean isUserLoggedIn() {
+        return authenticationService.isUserLoggedIn();
+    }
 
     @Override
     public void setParameter(BeforeEvent event, @OptionalParameter String parameter) {
-        this.username = parameter;
-        user = userService.getUserByUsername(username); // Fetch user details from API
-        initUI();
+        if (isUserLoggedIn()) {
+            this.username = parameter;
+            UserSingleApiResponse userSingleResponse =  userService.getUserByUsername(username);
+            if (userSingleResponse.getHttpStatusCode() == 200 && userSingleResponse.getData() != null) {
+                UserResponse = userSingleResponse.getData(); // Fetch user details from API
+                initUI();
+            }else {
+                String message = userSingleResponse.getMessage();
+                NotificationUtils.NotificationType notificationType = NotificationUtils.NotificationType.ERROR;
+                NotificationUtils.showNotification(message, notificationType);
+            }
+        }
     }
 
     private void initUI() {
@@ -42,7 +60,7 @@ public class UserDetailView extends Div implements HasUrlParameter<String> {
         userInfoForm.getStyle().set("margin-top", "20px");
 
         // Avatar image
-        Image avatar = new Image(user.getProfileImageUrl(), "User Avatar");
+        Image avatar = new Image(UserResponse.getProfileImageUrl(), "User Avatar");
         avatar.addClassNames(BorderRadius.MEDIUM, Margin.Right.LARGE, "mobile-avatar-margin");
         avatar.setWidth("200px");
         avatar.setHeight("200px");
@@ -70,20 +88,25 @@ public class UserDetailView extends Div implements HasUrlParameter<String> {
         UnorderedList ul = new UnorderedList();
         ul.addClassNames(ListStyleType.NONE, Margin.NONE, Padding.NONE, Display.FLEX, FlexDirection.COLUMN, Gap.MEDIUM);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd"); // Adjust the format as needed
-        String formattedDate = sdf.format(user.getJoinDate());
-        String isActiveString = user.isActive() ? "Yes" : "No";
-        String roleString = user.getRole().toString();  // Get the role String from the enum
 
-        ul.add(createListItem("First Name:", user.getFirstName()));
-        ul.add(createListItem("Last Name:", user.getLastName()));
-        ul.add(createListItem("Email Address:", user.getEmail()));
+        String formattedDate = UserResponse.getJoinDate() != null ? sdf.format(UserResponse.getJoinDate()): "";
+        String isActiveString = UserResponse.isActive() ? "Yes" : "No";
+        Role role = getRoleEnumName(UserResponse.getRole());  // Get the role String from the enum
+
+        ul.add(createListItem("First Name:", UserResponse.getFirstName()));
+        ul.add(createListItem("Last Name:", UserResponse.getLastName()));
+        ul.add(createListItem("Email Address:", UserResponse.getEmail()));
         ul.add(createListItem("Date join:", formattedDate));
-        ul.add(createListItem("Role:", roleString));  // Use the roleString here
+        ul.add(createListItem("Role:", role.getValue()));  // Use the roleString here
         ul.add(createListItem("is active:", isActiveString));
 
         aside.add(headerSection, ul);
 
         return aside;
+    }
+
+    private Role getRoleEnumName(String role) {
+        return Role.valueOf(role.toUpperCase());
     }
 
     private ListItem createListItem(String label, String value) {
@@ -101,5 +124,6 @@ public class UserDetailView extends Div implements HasUrlParameter<String> {
         item.add(subSection);
         return item;
     }
+
 
 }

@@ -4,11 +4,11 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum Role {
-    SUPER_ADMIN("ROLE_SUPER_ADMIN"),
-    ADMIN("ROLE_ADMIN"),
-    MANAGER("ROLE_MANAGER"),
-    USER("ROLE_USER"),
-    HR("ROLE_HR");
+    ROLE_SUPER_ADMIN("Super admin"),
+    ROLE_ADMIN("Admin"),
+    ROLE_MANAGER("Manager"),
+    ROLE_USER("User"),
+    ROLE_HR("HR");
 
     private final String value;
 
@@ -24,10 +24,10 @@ public enum Role {
     @JsonCreator
     public static Role fromValue(String value) {
         for (Role role : Role.values()) {
-            if (role.value.equals(value)) {
+            if (role.name().equals(value)) {
                 return role;
             }
         }
-        throw new IllegalArgumentException("Unknown enum value : " + value);
+        throw new IllegalArgumentException("Unknown enum name : " + value);
     }
 }

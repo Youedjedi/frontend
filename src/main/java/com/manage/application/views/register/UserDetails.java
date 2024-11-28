@@ -19,6 +19,8 @@ public class UserDetails {
     private String lastName;
 
     @NotBlank
+    private String username;
+    @NotBlank
     @Email
     private String email;
 
@@ -66,6 +68,14 @@ public class UserDetails {
 
     public void setAllowsMarketing(boolean allowsMarketing) {
         this.allowsMarketing = allowsMarketing;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     @Override

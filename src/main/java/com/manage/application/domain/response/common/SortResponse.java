@@ -1,6 +1,6 @@
-package com.manage.application.data.model;
+package com.manage.application.domain.response.common;
 
-public class Sort {
+public class SortResponse {
     private boolean sorted;
     private boolean unsorted;
     private boolean empty;

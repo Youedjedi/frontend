@@ -1,31 +1,25 @@
-package com.manage.application.data.model;
+package com.manage.application.domain.request.user;
 
-import com.manage.application.enums.Role;
-
-import java.util.Date;
 import java.util.List;
 
-public class User {
-    private String userId;
+public class UserRequest {
+    private Long id;
     private String firstName;
     private String lastName;
     private String username;
+    private String password;
     private String email;
-    private String profileImageUrl;
-    private Date lastLoginDate;
-    private Date lastLoginDateDisplay;
-    private Date joinDate;
-    private Role role;  // Change the role type from String to Role
+    private String role;
     private List<String> authorities;
     private boolean active;
     private boolean notLocked;
 
-    public String getUserId() {
-        return userId;
+    public Long getId() {
+        return id;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getFirstName() {
@@ -60,46 +54,15 @@ public class User {
         this.email = email;
     }
 
-    public String getProfileImageUrl() {
-        return profileImageUrl;
-    }
-
-    public void setProfileImageUrl(String profileImageUrl) {
-        this.profileImageUrl = profileImageUrl;
-    }
-
-    public Date getLastLoginDate() {
-        return lastLoginDate;
-    }
-
-    public void setLastLoginDate(Date lastLoginDate) {
-        this.lastLoginDate = lastLoginDate;
-    }
-
-    public Date getLastLoginDateDisplay() {
-        return lastLoginDateDisplay;
-    }
-
-    public void setLastLoginDateDisplay(Date lastLoginDateDisplay) {
-        this.lastLoginDateDisplay = lastLoginDateDisplay;
-    }
-
     private String oldPassword;
     private String newPassword;
     private String confirmPassword;
-    public Date getJoinDate() {
-        return joinDate;
-    }
 
-    public void setJoinDate(Date joinDate) {
-        this.joinDate = joinDate;
-    }
-
-    public Role getRole() {  // Change the return type from String to Role
+    public String getRole() {  // Change the return type from String to Role
         return role;
     }
 
-    public void setRole(Role role) {  // Change the parameter type from String to Role
+    public void setRole(String role) {  // Change the parameter type from String to Role
         this.role = role;
     }
 
@@ -149,5 +112,13 @@ public class User {
 
     public void setConfirmPassword(String confirmPassword) {
         this.confirmPassword = confirmPassword;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

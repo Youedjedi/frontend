@@ -1,10 +1,10 @@
 package com.manage.application.views.user;
 
 import com.manage.application.constants.MessageConstants;
-import com.manage.application.data.model.PagedResponse;
-import com.manage.application.data.model.User;
-import com.manage.application.data.service.AuthenticationService;
-import com.manage.application.data.service.UserService;
+import com.manage.application.domain.response.user.UserListApiResponse;
+import com.manage.application.service.AuthenticationService;
+import com.manage.application.service.UserService;
+import com.manage.application.domain.response.user.UserListResponse;
 import com.manage.application.utils.NotificationUtils;
 import com.manage.application.views.MainLayout;
 import com.vaadin.flow.component.Component;
@@ -23,7 +23,6 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -32,7 +31,9 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.selection.SelectionEvent;
 import com.vaadin.flow.data.selection.SelectionListener;
-import com.vaadin.flow.router.*;
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouteAlias;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 
 import java.time.LocalDate;
@@ -47,14 +48,14 @@ import static com.manage.application.constants.Constants.*;
 @Route(value = "user", layout = MainLayout.class)
 @RouteAlias(value = "", layout = MainLayout.class)
 @Uses(Icon.class)
-public class UsersView extends Div implements SelectionListener<Grid<User>, User>, BeforeEnterObserver {
-    private Grid<User> grid;
+public class UsersView extends Div implements SelectionListener<Grid<UserListResponse>, UserListResponse> {
+    private Grid<UserListResponse> grid;
     private Button prevButton;
     private Button nextButton;
     private Span pageLabel;
     private HorizontalLayout pageButtons;
     private Filters filters;
-    private UserService userService;
+    private UserService userService = new UserService();
     private final int page_size = 3;
     private final int pageRange = 3;
     private int totalElements = 3;
@@ -70,23 +71,17 @@ public class UsersView extends Div implements SelectionListener<Grid<User>, User
     private final MultiSelectComboBox<String> occupations = new MultiSelectComboBox<>("Occupation");
     private final CheckboxGroup<String> roles = new CheckboxGroup<>("Role");
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private List<User> selectedUsers = new ArrayList<>();
-
-    @Override
-    public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-        if (!isUserLoggedIn()) {
-            rerouteToLogin(beforeEnterEvent);
-        } else {
+    private List<UserListResponse> selectedUsers = new ArrayList<>();
+    public UsersView() {
+        if (isUserLoggedIn()) {
             initLayout();
         }
     }
+
     private boolean isUserLoggedIn() {
         return authenticationService.isUserLoggedIn();
     }
 
-    private void rerouteToLogin(BeforeEnterEvent event) {
-        event.rerouteTo("login");
-    }
     private void initLayout() {
 
         // Action buttons
@@ -137,10 +132,6 @@ public class UsersView extends Div implements SelectionListener<Grid<User>, User
         add(layout);
     }
 
-    public UsersView(UserService userService) {
-        this.userService = userService;
-    }
-
     private HorizontalLayout createMobileFilters() {
         // Mobile version
         HorizontalLayout mobileFilters = new HorizontalLayout();
@@ -165,7 +156,7 @@ public class UsersView extends Div implements SelectionListener<Grid<User>, User
         return mobileFilters;
     }
     @Override
-    public void selectionChange(SelectionEvent<Grid<User>, User> selectionEvent) {
+    public void selectionChange(SelectionEvent<Grid<UserListResponse>, UserListResponse> selectionEvent) {
         selectedUsers = new ArrayList<>(selectionEvent.getAllSelectedItems());
     }
     private void deleteSelectedUsers() {
@@ -175,8 +166,8 @@ public class UsersView extends Div implements SelectionListener<Grid<User>, User
         }
 
         // Convert selected users to an array of usernames
-        String[] usernames = selectedUsers.stream().map(User::getUsername).toArray(String[]::new);
-        userService.deleteUsers(usernames);
+        Long[] idUsers = selectedUsers.stream().map(UserListResponse::getId).toArray(Long[]::new);
+        userService.deleteUsers(idUsers);
         NotificationUtils.showNotification("Users deleted successfully", NotificationUtils.NotificationType.SUCCESS);
         selectedUsers.clear();
         this.currentPage = 0;
@@ -191,7 +182,7 @@ public class UsersView extends Div implements SelectionListener<Grid<User>, User
                     LumoUtility.BoxSizing.BORDER);
             name.setPlaceholder("First or last name");
             occupations.setItems("Insurance Clerk", "Mortarman", "Beer Coil Cleaner", "Scale Attendant");
-            roles.setItems("ROLE_SUPER_ADMIN", "Supervisor", "Manager", "External");
+            roles.setItems("Admin", "Editor", "Guest");
             roles.addClassName("double-width");
 
             // Add components to the main view
@@ -220,7 +211,7 @@ public class UsersView extends Div implements SelectionListener<Grid<User>, User
     }
 
     private void initializeGrid() {
-        grid = new Grid<>(User.class, false);
+        grid = new Grid<>(UserListResponse.class, false);
         grid.setSelectionMode(Grid.SelectionMode.MULTI);
         grid.getStyle().setHeight("300px");
         grid.setWidth("100%");
@@ -237,7 +228,6 @@ public class UsersView extends Div implements SelectionListener<Grid<User>, User
         grid.addColumn("firstName").setAutoWidth(true).setHeader("First Name");
         grid.addColumn("lastName").setAutoWidth(true).setHeader("Last Name");
         grid.addColumn("email").setAutoWidth(true).setHeader("Email");
-        grid.addColumn("role").setAutoWidth(true).setHeader("Role");
 
         grid.addComponentColumn(this::createActionsColumn)
                 .setHeader("Actions")
@@ -245,7 +235,7 @@ public class UsersView extends Div implements SelectionListener<Grid<User>, User
                 .setTextAlign(ColumnTextAlign.CENTER);
     }
 
-    private Component createImageColumn(User user) {
+    private Component createImageColumn(UserListResponse user) {
         String imageUrl = user.getProfileImageUrl();
         Image image = new Image(imageUrl, "alt text");
         image.getStyle().set("borderRadius", "50%");
@@ -255,7 +245,7 @@ public class UsersView extends Div implements SelectionListener<Grid<User>, User
         return image;
     }
 
-    private Component createActionsColumn(User user) {
+    private Component createActionsColumn(UserListResponse user) {
         Button editButton = new Button(new Icon(VaadinIcon.EDIT));
         editButton.addClickListener(event -> handleEditClick(user));
         editButton.setId("edit-button");
@@ -275,19 +265,19 @@ public class UsersView extends Div implements SelectionListener<Grid<User>, User
     private void configureEventListeners() {
         grid.addItemClickListener(this::handleItemClick);
         grid.addSortListener(event -> {
-            List<GridSortOrder<User>> sortOrderList = event.getSortOrder();
+            List<GridSortOrder<UserListResponse>> sortOrderList = event.getSortOrder();
             handleGridSort(sortOrderList);
         });
         grid.addSelectionListener(this::selectionChange);
     }
 
-    private void handleGridSort(List<GridSortOrder<User>> sortOrderList) {
+    private void handleGridSort(List<GridSortOrder<UserListResponse>> sortOrderList) {
         if (sortOrderList.isEmpty()) {
             sortedColumnName = DEFAULT_SORT_COLUMN;
             sortDirectionShort = DEFAULT_SORT_DIRECTION;
         } else {
-            GridSortOrder<User> sortOrder = sortOrderList.get(0);
-            Grid.Column<User> sortedColumn = sortOrder.getSorted();
+            GridSortOrder<UserListResponse> sortOrder = sortOrderList.get(0);
+            Grid.Column<UserListResponse> sortedColumn = sortOrder.getSorted();
             SortDirection direction = sortOrder.getDirection();
             String sortDirectionFull = direction.name();
             sortedColumnName = sortedColumn.getKey();
@@ -296,13 +286,13 @@ public class UsersView extends Div implements SelectionListener<Grid<User>, User
         this.refreshGrid();
     }
 
-    private void handleEditClick(User user) {
+    private void handleEditClick(UserListResponse user) {
         isEditOrDeleteClicked = true;
         EditUserDialogView dialog = new EditUserDialogView(user, this);
         dialog.open();
     }
 
-    private void handleDeleteClick(User user) {
+    private void handleDeleteClick(UserListResponse user) {
         isEditOrDeleteClicked = true;
 
         // Create a confirmation dialog
@@ -312,7 +302,7 @@ public class UsersView extends Div implements SelectionListener<Grid<User>, User
         // Confirm button
         Button confirmButton = new Button("Confirm", event -> {
             // Call the deleteUser method from your service
-            userService.deleteUser(user.getUsername());
+            userService.deleteUser(user.getId());
             NotificationUtils.showNotification(MessageConstants.USER_DELETED_SUCCESSFULLY, NotificationUtils.NotificationType.SUCCESS);
             this.currentPage = 0;
             // Close the dialog
@@ -336,22 +326,22 @@ public class UsersView extends Div implements SelectionListener<Grid<User>, User
 
 
 
-    private void handleItemClick(ItemClickEvent<User> event) {
+    private void handleItemClick(ItemClickEvent<UserListResponse> event) {
         if (isEditOrDeleteClicked) {
             isEditOrDeleteClicked = false;
             return;
         }
-        User selectedPerson = event.getItem();
+        UserListResponse selectedPerson = event.getItem();
         navigateToUserDetailView(selectedPerson);
     }
 
     private void populateData() {
-        PagedResponse<User> listUsers = fetchUsers();
-        totalElements = listUsers.getTotalElements();
-        grid.setItems(listUsers.getContent());
+        UserListApiResponse listUsers = fetchUsers();
+        totalElements = listUsers.getData().getTotalElements();
+        grid.setItems(listUsers.getData().getContent());
     }
 
-    private void navigateToUserDetailView(User person) {
+    private void navigateToUserDetailView(UserListResponse person) {
         // Giả sử ID của SamplePerson được lưu trong thuộc tính 'id'
         getUI().ifPresent(ui -> ui.navigate("user/detail/" + person.getUsername()));
     }
@@ -462,15 +452,15 @@ public class UsersView extends Div implements SelectionListener<Grid<User>, User
         pageLabel.setText("Page " + (currentPage + 1));
     }
     public void refreshGrid() {
-        PagedResponse<User> listUsers = fetchUsers();
-        totalElements = listUsers.getTotalElements();
-        grid.setItems(listUsers.getContent());
+        UserListApiResponse listUsers = fetchUsers();
+        totalElements = listUsers.getData().getTotalElements();
+        grid.setItems(listUsers.getData().getContent());
         grid.getDataProvider().refreshAll();
         updatePaginationControls();
         pageButtons.removeAll();
         pageButtons.add(buildPageButtons());
     }
-    private PagedResponse<User> fetchUsers() {
+    private UserListApiResponse fetchUsers() {
         String endDate = getEndDateAsString();
         String startDate = getStartDateAsString();
         Set<String> role = roles.getSelectedItems();

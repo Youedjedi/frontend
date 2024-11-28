@@ -1,48 +1,31 @@
-package com.manage.application.data.model;
-import java.io.Serializable;
-import java.util.ArrayList;
+package com.manage.application.domain.response.user;
+
 import java.util.Date;
 import java.util.List;
 
-
-public class Account implements Serializable {
+public class UserListResponse {
+    private Long id;
     private String userId;
     private String firstName;
     private String lastName;
     private String username;
     private String password;
     private String email;
+    private String profileImageUrl;
     private Date lastLoginDate;
     private Date lastLoginDateDisplay;
     private Date joinDate;
-    private String profileImageUrl;
-    private boolean active;
-    private boolean notLocked;
     private String role;
     private List<String> authorities;
+    private boolean active;
+    private boolean notLocked;
 
-    public Account() {
-        this.userId = "";
-        this.firstName = "";
-        this.lastName = "";
-        this.username = "";
-        this.email = "";
-        this.lastLoginDate = null;
-        this.lastLoginDateDisplay = null;
-        this.joinDate = null;
-        this.profileImageUrl = "";
-        this.active = false;
-        this.notLocked = false;
-        this.role = "";
-        this.authorities = new ArrayList<>();
+    public Long getId() {
+        return id;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getUserId() {
@@ -85,6 +68,14 @@ public class Account implements Serializable {
         this.email = email;
     }
 
+    public String getProfileImageUrl() {
+        return profileImageUrl;
+    }
+
+    public void setProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
+
     public Date getLastLoginDate() {
         return lastLoginDate;
     }
@@ -101,6 +92,9 @@ public class Account implements Serializable {
         this.lastLoginDateDisplay = lastLoginDateDisplay;
     }
 
+    private String oldPassword;
+    private String newPassword;
+    private String confirmPassword;
     public Date getJoinDate() {
         return joinDate;
     }
@@ -109,12 +103,20 @@ public class Account implements Serializable {
         this.joinDate = joinDate;
     }
 
-    public String getProfileImageUrl() {
-        return profileImageUrl;
+    public String getRole() {  // Change the return type from String to Role
+        return role;
     }
 
-    public void setProfileImageUrl(String profileImageUrl) {
-        this.profileImageUrl = profileImageUrl;
+    public void setRole(String role) {  // Change the parameter type from String to Role
+        this.role = role;
+    }
+
+    public List<String> getAuthorities() {
+        return authorities;
+    }
+
+    public void setAuthorities(List<String> authorities) {
+        this.authorities = authorities;
     }
 
     public boolean isActive() {
@@ -133,19 +135,35 @@ public class Account implements Serializable {
         this.notLocked = notLocked;
     }
 
-    public String getRole() {
-        return role;
+    public String getOldPassword() {
+        return oldPassword;
     }
 
-    public void setRole(String role) {
-        this.role = role;
+    public void setOldPassword(String oldPassword) {
+        this.oldPassword = oldPassword;
     }
 
-    public List<String> getAuthorities() {
-        return authorities;
+    public String getNewPassword() {
+        return newPassword;
     }
 
-    public void setAuthorities(List<String> authorities) {
-        this.authorities = authorities;
+    public void setNewPassword(String newPassword) {
+        this.newPassword = newPassword;
+    }
+
+    public String getConfirmPassword() {
+        return confirmPassword;
+    }
+
+    public void setConfirmPassword(String confirmPassword) {
+        this.confirmPassword = confirmPassword;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

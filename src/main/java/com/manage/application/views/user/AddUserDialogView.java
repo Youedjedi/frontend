@@ -1,7 +1,7 @@
 package com.manage.application.views.user;
 import com.manage.application.constants.MessageConstants;
-import com.manage.application.data.model.User;
-import com.manage.application.data.service.UserService;
+import com.manage.application.service.UserService;
+import com.manage.application.domain.request.user.UserRequest;
 import com.manage.application.enums.Role;
 import com.manage.application.utils.NotificationUtils;
 import com.vaadin.flow.component.button.Button;
@@ -22,13 +22,16 @@ import com.vaadin.flow.server.StreamResource;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class AddUserDialogView extends Dialog {
     private final TextField firstNameField;
     private final TextField lastNameField;
     private final TextField usernameField;
     private final EmailField emailField;
-    private final ComboBox<Role> roleComboBox;
+    private final ComboBox<String> roleComboBox;
     private final Checkbox isActiveField;
     private final Checkbox isNonLockedField;
     private Button saveButton;
@@ -36,7 +39,7 @@ public class AddUserDialogView extends Dialog {
     private String fileName = "";
     private String fileExtension = "";
     private Image profileImagePreview; // Thêm biến này
-    private final Binder<User> binder = new Binder<>(User.class);
+    private final Binder<UserRequest> binder = new Binder<>(UserRequest.class);
     private final UserService userService = new UserService();
 
     private UsersView  usersView;
@@ -46,7 +49,7 @@ public class AddUserDialogView extends Dialog {
         lastNameField = createTextField("Last Name", "");
         usernameField = createTextField("Username", "");
         emailField = createEmailField("Email", "");
-        roleComboBox = createRoleComboBox("Role", Role.USER);
+        roleComboBox = createRoleComboBox("Role", Role.ROLE_USER);
         isActiveField = createCheckbox("Is Active", false);
         isNonLockedField = createCheckbox("Is Non Locked", false);
 
@@ -54,21 +57,21 @@ public class AddUserDialogView extends Dialog {
         binder.forField(firstNameField)
                 .withValidator(new StringLengthValidator(
                         "First name must be between 3 and 50 characters", 3, 50))
-                .bind(User::getFirstName, User::setFirstName);
+                .bind(UserRequest::getFirstName, UserRequest::setFirstName);
 
         binder.forField(lastNameField)
                 .withValidator(new StringLengthValidator(
                         "Last name must be between 3 and 50 characters", 3, 50))
-                .bind(User::getLastName, User::setLastName);
+                .bind(UserRequest::getLastName, UserRequest::setLastName);
 
         binder.forField(usernameField)
                 .withValidator(new StringLengthValidator(
                         "Username must be between 3 and 50 characters", 3, 50))
-                .bind(User::getUsername, User::setUsername);
+                .bind(UserRequest::getUsername, UserRequest::setUsername);
 
         binder.forField(emailField)
                 .withValidator(new EmailValidator("Invalid email address"))
-                .bind(User::getEmail, User::setEmail);
+                .bind(UserRequest::getEmail, UserRequest::setEmail);
 
         profileImagePreview = new Image(); // Khởi tạo đối tượng Image
         profileImagePreview.setMaxHeight("100px"); // Cài đặt kích thước tối đa
@@ -146,7 +149,7 @@ public class AddUserDialogView extends Dialog {
     }
 
     private boolean saveUser() {
-        User user = new User();
+        UserRequest user = new UserRequest();
         user.setFirstName(firstNameField.getValue());
         user.setLastName(lastNameField.getValue());
         user.setUsername(usernameField.getValue());
@@ -168,14 +171,24 @@ public class AddUserDialogView extends Dialog {
         }
     }
 
-    private ComboBox<Role> createRoleComboBox(String label, Role initialValue) {
-        ComboBox<Role> comboBox = new ComboBox<>(label);
-        comboBox.setItems(Role.values()); // Đặt danh sách các vai trò vào ComboBox
-        comboBox.setValue(initialValue); // Đặt giá trị ban đầu nếu hợp lệ
+    private ComboBox<String> createRoleComboBox(String label, Role initialValue) {
+        ComboBox<String> comboBox = new ComboBox<>(label);
+        List<String> roleNames = Arrays.stream(Role.values())
+                .map(Enum::name)
+                .collect(Collectors.toList());
+
+        comboBox.setItems(roleNames); // Đặt danh sách tên của các vai trò vào ComboBox
+
+        // Sử dụng tên enum để hiển thị giá trị tương ứng
+        comboBox.setItemLabelGenerator(roleName -> Role.valueOf(roleName).getValue());
+
+        if (initialValue != null) {
+            comboBox.setValue(initialValue.name()); // Đặt giá trị ban đầu nếu hợp lệ
+        }
+
         comboBox.setWidth("100%");
         return comboBox;
     }
-
 
     private TextField createTextField(String label, String initialValue) {
         TextField textField = new TextField(label, initialValue);

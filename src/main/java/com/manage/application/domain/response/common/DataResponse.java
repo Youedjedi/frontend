@@ -1,42 +1,32 @@
-package com.manage.application.data.model;
+package com.manage.application.domain.response.common;
 
-import java.util.List;
-
-public class PagedResponse<T> {
-    private List<T> content;
-    private Pageable pageable;
-    private int totalPages;
+public class DataResponse<T> {
+    private T content;
+    private PageableResponse pageable;
     private boolean last;
+    private int totalPages;
     private int totalElements;
     private int size;
     private int number;
-    private Sort sort;
+    private SortResponse sort;
     private int numberOfElements;
     private boolean first;
     private boolean empty;
 
-    public List<T> getContent() {
+    public T getContent() {
         return content;
     }
 
-    public void setContent(List<T> content) {
+    public void setContent(T content) {
         this.content = content;
     }
 
-    public Pageable getPageable() {
+    public PageableResponse getPageable() {
         return pageable;
     }
 
-    public void setPageable(Pageable pageable) {
+    public void setPageable(PageableResponse pageable) {
         this.pageable = pageable;
-    }
-
-    public int getTotalPages() {
-        return totalPages;
-    }
-
-    public void setTotalPages(int totalPages) {
-        this.totalPages = totalPages;
     }
 
     public boolean isLast() {
@@ -45,6 +35,14 @@ public class PagedResponse<T> {
 
     public void setLast(boolean last) {
         this.last = last;
+    }
+
+    public int getTotalPages() {
+        return totalPages;
+    }
+
+    public void setTotalPages(int totalPages) {
+        this.totalPages = totalPages;
     }
 
     public int getTotalElements() {
@@ -71,11 +69,11 @@ public class PagedResponse<T> {
         this.number = number;
     }
 
-    public Sort getSort() {
+    public SortResponse getSort() {
         return sort;
     }
 
-    public void setSort(Sort sort) {
+    public void setSort(SortResponse sort) {
         this.sort = sort;
     }
 

@@ -1,6 +1,8 @@
 package com.manage.application.views.login;
-import com.manage.application.data.model.Account;
-import com.manage.application.data.service.AuthenticationService;
+import com.manage.application.domain.response.user.UserSingleApiResponse;
+import com.manage.application.service.AuthenticationService;
+import com.manage.application.domain.request.user.UserRequest;
+import com.manage.application.domain.response.user.UserListResponse;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
@@ -17,17 +19,17 @@ public class LoginFormBinder {
     }
 
     public void addBindingAndValidation() {
-        BeanValidationBinder<Account> binder = new BeanValidationBinder<>(Account.class);
+        BeanValidationBinder<UserRequest> binder = new BeanValidationBinder<>(UserRequest.class);
         binder.bindInstanceFields(loginForm);
         binder.setStatusLabel(loginForm.getErrorMessageField());
 
         loginForm.getSubmitButton().addClickListener(event -> {
             try {
-                Account user = new Account();
+                UserRequest user = new UserRequest();
                 binder.writeBean(user);
-                ResponseEntity<Account> userRes = this.authenticationService.login(user);
+                ResponseEntity<UserSingleApiResponse> userRes = this.authenticationService.login(user);
                 this.authenticationService.saveToken(userRes.getHeaders().getFirst("Jwt-Token"));
-                this.authenticationService.addUserToLocalCache(userRes.getBody());
+                this.authenticationService.addUserToLocalCache(userRes.getBody().getData());
                 if (this.authenticationService.isUserLoggedIn()) {
                     loginSuccess(user);
                     navigateToHomeOrUserPage();
@@ -38,7 +40,7 @@ public class LoginFormBinder {
         });
     }
 
-    private void loginSuccess(Account userAccount) {
+    private void loginSuccess(UserRequest userAccount) {
         Notification notification = Notification.show("Welcome back, " + userAccount.getEmail(), 5000, Notification.Position.TOP_END);
         notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
     }

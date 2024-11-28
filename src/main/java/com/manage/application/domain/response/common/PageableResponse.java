@@ -1,26 +1,26 @@
-package com.manage.application.data.model;
+package com.manage.application.domain.response.common;
 
-public class Pageable {
-    private Sort sort;
-    private int offset;
+public class PageableResponse {
+    private SortResponse sort;
+    private long offset;
     private int pageNumber;
     private int pageSize;
-    private boolean unpaged;
     private boolean paged;
+    private boolean unpaged;
 
-    public Sort getSort() {
+    public SortResponse getSort() {
         return sort;
     }
 
-    public void setSort(Sort sort) {
+    public void setSort(SortResponse sort) {
         this.sort = sort;
     }
 
-    public int getOffset() {
+    public long getOffset() {
         return offset;
     }
 
-    public void setOffset(int offset) {
+    public void setOffset(long offset) {
         this.offset = offset;
     }
 
@@ -40,19 +40,19 @@ public class Pageable {
         this.pageSize = pageSize;
     }
 
-    public boolean isUnpaged() {
-        return unpaged;
-    }
-
-    public void setUnpaged(boolean unpaged) {
-        this.unpaged = unpaged;
-    }
-
     public boolean isPaged() {
         return paged;
     }
 
     public void setPaged(boolean paged) {
         this.paged = paged;
+    }
+
+    public boolean isUnpaged() {
+        return unpaged;
+    }
+
+    public void setUnpaged(boolean unpaged) {
+        this.unpaged = unpaged;
     }
 }

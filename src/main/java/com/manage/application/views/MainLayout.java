@@ -1,8 +1,10 @@
 package com.manage.application.views;
 
-import com.manage.application.data.model.Account;
-import com.manage.application.data.service.AuthenticationService;
-import com.manage.application.views.about.AboutView;
+import com.manage.application.domain.response.user.UserSingleApiResponse;
+import com.manage.application.domain.response.user.UserSingleResponse;
+import com.manage.application.service.AuthenticationService;
+import com.manage.application.domain.response.user.UserListResponse;
+import com.manage.application.views.post.ImageListView;
 import com.manage.application.views.user.UsersView;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
@@ -15,6 +17,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import org.vaadin.lineawesome.LineAwesomeIcon;
@@ -23,16 +27,27 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
 /**
  * The main view is a top-level placeholder for other views.
  */
-public class MainLayout extends AppLayout {
+public class MainLayout extends AppLayout implements BeforeEnterObserver {
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        if (!isUserLoggedIn()) {
+            UI.getCurrent().getPage().setLocation("/login");
+        }
+    }
 
+    private boolean isUserLoggedIn() {
+        return authenticationService.isUserLoggedIn();
+    }
     private final AuthenticationService authenticationService = new AuthenticationService();
 
     private H2 viewTitle;
 
     public MainLayout() {
-        setPrimarySection(Section.DRAWER);
-        addDrawerContent();
-        addHeaderContent();
+        if (isUserLoggedIn()) {
+            setPrimarySection(Section.DRAWER);
+            addDrawerContent();
+            addHeaderContent();
+        }
     }
 
     private void addHeaderContent() {
@@ -43,7 +58,7 @@ public class MainLayout extends AppLayout {
         viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
 
         // Create user dropdown menu instead of breadcrumbs
-        Account account = authenticationService.getUserFromLocalCache();
+        UserSingleResponse account = authenticationService.getUserFromLocalCache();
         Span userNameSpan = new Span();
         if (account !=null) {
             userNameSpan = new Span(account.getUsername()); // Replace with the actual
@@ -86,13 +101,14 @@ public class MainLayout extends AppLayout {
         Scroller scroller = new Scroller(createNavigation());
 
         addToDrawer(header, scroller, createFooter());
+
     }
 
     private SideNav createNavigation() {
         SideNav nav = new SideNav();
 
         nav.addItem(new SideNavItem("Users", UsersView.class, LineAwesomeIcon.FILTER_SOLID.create()));
-        nav.addItem(new SideNavItem("Posts", AboutView.class, LineAwesomeIcon.FILE.create()));
+        nav.addItem(new SideNavItem("Posts", ImageListView.class, LineAwesomeIcon.FILE.create()));
 
         return nav;
     }
@@ -105,8 +121,10 @@ public class MainLayout extends AppLayout {
 
     @Override
     protected void afterNavigation() {
-        super.afterNavigation();
-        viewTitle.setText(getCurrentPageTitle());
+        if (isUserLoggedIn()) {
+            super.afterNavigation();
+            viewTitle.setText(getCurrentPageTitle());
+        }
     }
 
     private String getCurrentPageTitle() {
